@@ -93,56 +93,65 @@ int game_over(char *board)
 		return 0;
 }
 
-void print_board(char *board)
+void print_board(char board[][9])
 {
 	printf("\n\n");
 	int row = 0;
-	for(int i=1;i<10;i++)
+	for(int i=0;i<10;i++)
 	{
-		if(board[i-1]==1) printf(" x "); else if(board[i-1]==-1) printf(" o "); else printf("   "); 
-		if(i%3==0&&i!=0&&i!=9) 
-		{
-			if(row==0) printf("\t 0 | 1 | 2");
-			if(row==1) printf("\t 3 | 4 | 5");
 
-			printf("\n-----------\t-----------\n");
-			row++;
+		row = 0;
+		for(int j=1;j<10;j++)
+		{
+			if(board[i][j-1]==1) printf(" x "); else if(board[i][j-1]==-1) printf(" o "); else printf("   ");
+
+			if(j%3==0&&j!=0&&j!=9) 
+			{
+				if(row==0) printf("\t 0 | 1 | 2");
+				if(row==1) printf("\t 3 | 4 | 5");
+
+				printf("\n-----------\t-----------\n");
+				row++;
+			}
+
+			else if(j!=9)	printf("|");
 		}
-		else if(i!=9)	printf("|");
+
+		if(row==2) printf("\t 6 | 7 | 8");
 	}
-	if(row==2) printf("\t 6 | 7 | 8");
+	
 	printf("\n\n");
 }
 
 int main()
 {
-	char board[9];
+	char board[10][9];
 
 	char win_msg[3][20] = {"Player O wins!\n\n", "Game is a draw!\n\n", "Player X wins!\n\n"};
 
-	memset(board, 0, 9);
+	memset(board[0], 0, 9);
 
 	int side=1, pos;
 
-	while(!game_over(board))
+	while(!game_over(board[0]))
 	{
 		print_board(board);
 		printf("Enter move: ");
 		scanf("%d", &pos);
 
-		board[pos] = side;
+		board[0][pos] = side;
 
-		if(game_over(board))
+		if(game_over(board[0]))
 			break;
 
-		int move = get_move(board, -side);
+		int move = get_move(board[0], -side);
 
-		board[move] = -side;
+		board[0][move] = -side;
 	}
 
 	print_board(board);
 
-	printf("%s", win_msg[analyze_board(board, 1) + 1]);
+	printf("%s", win_msg[analyze_board(board[0], 1) + 1]);
 
 	return 0;
 }
