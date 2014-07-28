@@ -8,7 +8,7 @@ CFLAGS=-std=c99 -c
 all: ttt
 
 ttt: ttt.o
-	$(CC) ttt.o -o ttt
+	$(CC) ttt.o -o ttt -lncurses
 
 ttt.o: ttt.c
 	$(CC) $(CFLAGS) ttt.c

@@ -1,5 +1,8 @@
 #include <stdio.h>
 #include <string.h>
+#include <stdlib.h>
+#include <curses.h>
+#include <signal.h>
 
 int analyze_board(char *node, int side)
 {	
@@ -93,34 +96,49 @@ int game_over(char *board)
 		return 0;
 }
 
-void print_board(char board[][9])
+void print_board(char board[][9], char *symbols)
 {
-	printf("\n\n");
-	int row = 0;
-	for(int i=0;i<10;i++)
+
+	int row = 0, col = 0, c_count = 0, r_count = 0;
+	for(int i=1;i<10;i++)
 	{
-
-		row = 0;
-		for(int j=1;j<10;j++)
+		col = 0;
+		
+		col = c_count * 16;
+		for(int j=0;j<9;j++)
 		{
-			if(board[i][j-1]==1) printf(" x "); else if(board[i][j-1]==-1) printf(" o "); else printf("   ");
+			if(j!=0&&j!=3&&j!=6&&j!=9) mvaddch(row, col, '|');
 
-			if(j%3==0&&j!=0&&j!=9) 
+			col += 2;
+			mvaddch(row, col, symbols[board[i][j]+1]);
+			col += 2;
+
+			if(j==2||j==5||j==8)
 			{
-				if(row==0) printf("\t 0 | 1 | 2");
-				if(row==1) printf("\t 3 | 4 | 5");
-
-				printf("\n-----------\t-----------\n");
 				row++;
+				col = c_count * 16;
+				move(row, col);
+				if(j!=8){ addstr("-------------"); row++; }
 			}
+		}
+		c_count++;
 
-			else if(j!=9)	printf("|");
+		if(c_count==3)
+		{
+			c_count = 0;
+			r_count++;
 		}
 
-		if(row==2) printf("\t 6 | 7 | 8");
+		row = r_count * 7;
+
 	}
-	
-	printf("\n\n");
+}
+
+static void finish(int sig)
+{
+    endwin();
+
+    exit(0);
 }
 
 int main()
@@ -128,15 +146,26 @@ int main()
 	char board[10][9];
 
 	char win_msg[3][20] = {"Player O wins!\n\n", "Game is a draw!\n\n", "Player X wins!\n\n"};
+	char symbols[3] = {'o', ' ', 'x'};
 
-	memset(board[0], 0, 9);
+	for(int i=0;i<10;i++)
+		memset(board[i], 0, 9);
 
 	int side=1, pos;
 
+	(void) signal(SIGINT, finish);      /* arrange interrupts to terminate */
+
+    (void) initscr();      /* initialize the curses library */
+    keypad(stdscr, TRUE);  /* enable keyboard mapping */
+    (void) nonl();         /* tell curses not to do NL->CR/NL on output */
+    (void) cbreak();       /* take input chars one at a time, no wait for \n */
+    (void) echo();         /* echo input - in color */
+
 	while(!game_over(board[0]))
 	{
-		print_board(board);
-		printf("Enter move: ");
+		print_board(board, symbols);
+		refresh();
+		//printf("Enter move: ");
 		scanf("%d", &pos);
 
 		board[0][pos] = side;
@@ -149,9 +178,11 @@ int main()
 		board[0][move] = -side;
 	}
 
-	print_board(board);
+	print_board(board, symbols);
 
 	printf("%s", win_msg[analyze_board(board[0], 1) + 1]);
+
+	finish(0);
 
 	return 0;
 }
