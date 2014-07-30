@@ -4,6 +4,15 @@
 #include <curses.h>
 #include <signal.h>
 
+int evaluate_game(char char board[][9], int s)
+{
+	for(int i=1;i<10;i++)
+	{
+		
+	}
+
+}
+
 int analyze_board(char *node, int side)
 {	
 	//check win on rows for X
@@ -130,7 +139,6 @@ void print_board(char board[][9], char *symbols)
 		}
 
 		row = r_count * 7;
-
 	}
 }
 
